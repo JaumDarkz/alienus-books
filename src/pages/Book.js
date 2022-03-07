@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,11 +10,22 @@ import {
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const Book = (navigation) => {
+const Book = ({navigation}) => {
   // Coleta Dados
+  const [books, setBooks] = useState()
   const [title, setTitle] = useState();
   const [description, setDescription] = useState();
   const [photo, setPhoto] = useState();
+
+  useEffect(() => {
+    //executado quando exiido na tela
+
+    AsyncStorage.getItem('books').then(data => {
+      const book = JSON.parse(data)
+
+      setBooks(book)
+    })
+  }, [])
 
   // Valida se existe dados no formulario
   const isValid = () => {
@@ -26,16 +37,20 @@ const Book = (navigation) => {
   };
   // Salva no DB
   const onSave = async () => {
-    if (isValid) {
-      const id = 1;
-
+    if (isValid()) {
+      const id = Math.random(5000).toString()
       const data = {
         id,
         title,
         description,
         photo,
       };
-      await AsyncStorage.setItem('books', JSON.stringify(data));
+
+      //adicionando dados ao array do AsyncStorage
+      books.push(data)
+
+      await AsyncStorage.setItem('books', JSON.stringify(data))
+      navigation.goBack()
     }
   };
 
